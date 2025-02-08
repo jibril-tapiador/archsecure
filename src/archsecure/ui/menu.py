@@ -257,7 +257,7 @@ def run_menu(menu: Menu, stdscr: curses.window) -> str:
     # New header text per requirements.
     header_text = "Up/Down: Navigate  Tab/Enter: Select/Toggle"
     start_row = 3
-    menu_start_x = 4
+    menu_start_x = 2
 
     while True:
         window.clear()
