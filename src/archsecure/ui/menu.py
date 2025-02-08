@@ -1,30 +1,26 @@
 import curses
 import sys
 import textwrap
-from typing import Callable, List, Optional
+from typing import List, Tuple
 
 from archsecure.ui.descriptions import descriptions
 
 
 class MenuItem:
     """
-    A single menu item.
+    Represents a single menu item.
     """
-    def __init__(
-        self,
-        label: str,
-        item_type: str = "checkbox",
-        checked: bool = False,
-        submenu: Optional["Menu"] = None,
-        action: Optional[Callable[[], None]] = None,
-    ):
+    def __init__(self, label: str, item_type: str = "checkbox", checked: bool = False,
+                 submenu: 'Menu' = None, action: callable = None) -> None:
         """
-        :param label: The text label for the menu item.
+        Initialize a MenuItem.
+
+        :param label: The display text of the menu item.
         :param item_type: One of "checkbox", "radio", "action", or "back".
-                          "action" indicates no indicator should be drawn.
-        :param checked: Whether the item is checked.
-        :param submenu: A submenu (Menu instance) if this item leads to another menu.
-        :param action: A callable to execute if the item is an action.
+                          "action" means no indicator is drawn.
+        :param checked: Initial checked state.
+        :param submenu: A submenu if this item leads to another menu.
+        :param action: A callable executed when the item is selected.
         """
         self.label = label
         self.item_type = item_type
@@ -34,85 +30,53 @@ class MenuItem:
 
     def effective_checked(self) -> bool:
         """
-        Return the effective checked state. For items with submenus,
-        return True if any child (other than back items) is checked.
+        Return the effective checked state.
+
+        For items with a submenu, returns True if any non-back child is checked.
+        Otherwise, returns the item's own checked state.
         """
-        if self.submenu:
-            return any(child.effective_checked() for child in self.submenu.items if child.item_type != "back")
+        if self.submenu is not None:
+            return any(item.effective_checked() for item in self.submenu.items if item.item_type != "back")
         return self.checked
 
 
 class Menu:
     """
-    Represents a menu with multiple items.
+    Represents a menu, which may include nested submenus.
     """
-    def __init__(self, items: List[MenuItem], parent: Optional["Menu"] = None, is_main: bool = False):
-        self.items: List[MenuItem] = items.copy()
+    def __init__(self, items: List[MenuItem], parent: 'Menu' = None, is_main: bool = False) -> None:
+        """
+        Initialize a Menu.
+
+        :param items: List of MenuItem objects.
+        :param parent: Parent Menu, if any.
+        :param is_main: True if this is the main menu.
+        """
+        self.items = items[:]
         self.parent = parent
         self.position = 0
 
-        # If this is a submenu, add a Back option.
         if self.parent is not None:
             self.items.append(MenuItem("<- Back", item_type="back"))
-        # If this is the main menu, add action items for execution.
         if parent is None and is_main:
+            # Append action items for the main menu.
             self.items.append(MenuItem("Secure Computer!", item_type="action", action=lambda: None))
             self.items.append(MenuItem("Abort", item_type="action", action=lambda: sys.exit(0)))
 
-    def navigate(self, offset: int) -> None:
+    def navigate(self, n: int) -> None:
         """
-        Adjust the current position by offset, bounded by [0, len(items)-1].
+        Move the selection by n positions, ensuring the index remains valid.
         """
-        self.position = max(0, min(self.position + offset, len(self.items) - 1))
+        self.position = max(0, min(self.position + n, len(self.items) - 1))
 
 
-def _render_menu(stdscr: curses.window, menu: Menu, start_row: int = 3, menu_start_x: int = 4) -> int:
+def draw_info_panel(stdscr: curses.window, label: str, panel_x: int) -> None:
     """
-    Render the menu items onto stdscr.
-    Returns the computed menu width.
-    """
-    menu_texts: List[str] = []
-    max_text_width = 0
+    Draw a bordered info panel filling the space to the right of panel_x.
 
-    for item in menu.items:
-        indicator = ""
-        if item.item_type in ("checkbox", "radio") or item.submenu is not None:
-            if item.item_type == "checkbox":
-                indicator = "[X]" if item.effective_checked() else "[ ]"
-            elif item.item_type == "radio":
-                indicator = "(X)" if item.checked else "( )"
-            elif item.submenu is not None:
-                indicator = "[X]" if item.effective_checked() else "[ ]"
-        text = f"{indicator} {item.label}" if indicator else item.label
-        menu_texts.append(text)
-        max_text_width = max(max_text_width, len(text))
-    # Reserve space for the marker ("> ") on highlighted items.
-    max_text_width += 3
-
-    for idx, text in enumerate(menu_texts):
-        mode = curses.color_pair(2) if idx == menu.position else curses.A_NORMAL
-
-        y_index = start_row + idx
-        if text in {"Secure Computer!", "Abort", "<- Back"}:
-            y_index += 1
-
-        # If the item is highlighted, draw the green marker separately.
-        if idx == menu.position:
-            try:
-                stdscr.addstr(y_index, menu_start_x - 2, "> ", curses.color_pair(3))
-            except curses.error:
-                pass
-        try:
-            stdscr.addstr(y_index, menu_start_x, text, mode)
-        except curses.error:
-            pass
-
-    return max_text_width
-
-
-def _draw_info_panel(stdscr: curses.window, label: str, panel_x: int) -> None:
-    """
-    Draw a bordered info panel starting at panel_x and filling the remaining width.
+    :param stdscr: The main curses window.
+    :param label: The key label to use for the info description.
+    :param panel_x: The x-coordinate where the panel starts.
     """
     max_y, max_x = stdscr.getmaxyx()
     panel_width = max_x - panel_x - 2
@@ -139,22 +103,90 @@ def _draw_info_panel(stdscr: curses.window, label: str, panel_x: int) -> None:
     info_win.refresh()
 
 
-def _clear_info_panel(stdscr: curses.window, panel_x: int) -> None:
+def clear_info_panel(stdscr: curses.window, panel_x: int) -> None:
     """
-    Clear the info panel area.
+    Clear the area where the info panel is drawn.
+
+    :param stdscr: The main curses window.
+    :param panel_x: The x-coordinate where the panel starts.
     """
     max_y, max_x = stdscr.getmaxyx()
     panel_width = max_x - panel_x - 2
     panel_height = max_y - 4
     panel_y = 2
+
     clear_win = stdscr.subwin(panel_height, panel_width, panel_y, panel_x)
     clear_win.clear()
     clear_win.refresh()
 
 
+def _build_menu_layout(menu: Menu, start_row: int) -> Tuple[List[Tuple[int, str, int]], int]:
+    """
+    Build a layout for the menu items that includes a 2-line vertical gap
+    before the first action or back item.
+
+    :param menu: The Menu instance.
+    :param start_row: The starting y-coordinate for drawing.
+    :return: A tuple with a list of (original_index, text, y_coord) and the max width (including marker space).
+    """
+    layout = []
+    current_y = start_row
+    max_width = 0
+    for i, item in enumerate(menu.items):
+        # Insert a 2-line vertical gap when transitioning from non-action to action/back.
+        if i > 0 and item.item_type in ("action", "back") and menu.items[i - 1].item_type not in ("action", "back"):
+            current_y += 2
+
+        indicator = ""
+        if item.item_type in ("checkbox", "radio") or item.submenu is not None:
+            if item.item_type == "checkbox":
+                indicator = "[X]" if item.effective_checked() else "[ ]"
+            elif item.item_type == "radio":
+                indicator = "(X)" if item.checked else "( )"
+            elif item.submenu is not None:
+                indicator = "[X]" if item.effective_checked() else "[ ]"
+        text = f"{indicator} {item.label}" if indicator else item.label
+        max_width = max(max_width, len(text))
+        layout.append((i, text, current_y))
+        current_y += 1
+
+    return layout, max_width + 3  # Reserve extra space for the "> " marker
+
+
+def _draw_menu_item(window: curses.window, item_index: int, text: str, y: int, menu: Menu, menu_start_x: int) -> None:
+    """
+    Draw a single menu item at the specified y coordinate.
+
+    If this item is the currently selected one, it is highlighted and preceded by a bold green ">".
+
+    :param window: The curses window to draw on.
+    :param item_index: The original index of the item in the menu.
+    :param text: The text of the menu item.
+    :param y: The y-coordinate at which to draw.
+    :param menu: The Menu instance.
+    :param menu_start_x: The x-coordinate where the menu text begins.
+    """
+    if item_index == menu.position:
+        mode = curses.color_pair(2)
+        try:
+            # Draw the bold green marker (with its own color pair and A_BOLD attribute)
+            window.addstr(y, menu_start_x - 2, "> ", curses.color_pair(3) | curses.A_BOLD)
+        except curses.error:
+            pass
+        try:
+            window.addstr(y, menu_start_x, text, mode)
+        except curses.error:
+            pass
+    else:
+        try:
+            window.addstr(y, menu_start_x, text)
+        except curses.error:
+            pass
+
+
 def build_menu_structure() -> Menu:
     """
-    Build the complete menu structure.
+    Construct and return the full nested menu structure.
     """
     # Harden Firewall submenu (radio buttons)
     firewall_menu = Menu([
@@ -210,64 +242,70 @@ def build_menu_structure() -> Menu:
     return main_menu
 
 
-def run_menu(menu: Menu, stdscr: curses.window) -> Optional[str]:
+def run_menu(menu: Menu, stdscr: curses.window) -> str:
     """
-    The main loop to run the given menu until an action is selected.
-    Returns the label of the selected action item, if any.
+    Run the menu loop using the provided curses window.
+
+    :param menu: The Menu instance to display.
+    :param stdscr: The main curses window.
+    :return: The label of the selected action item, if any.
     """
-    win = stdscr.subwin(0, 0)
-    win.keypad(True)
+    window = stdscr.subwin(0, 0)
+    window.keypad(True)
     curses.curs_set(0)
 
+    # New header text per requirements.
+    header_text = "Up/Down: Navigate  Tab/Enter: Select/Toggle"
+    start_row = 3
+    menu_start_x = 4
+
     while True:
-        win.clear()
-        stdscr.addstr(1, 2, "Up/Down: Navigate  Tab/Enter: Select/Toggle", curses.A_BOLD)
-        start_row = 3
-        menu_start_x = 4
+        window.clear()
+        stdscr.addstr(1, 2, header_text, curses.A_BOLD)
 
-        # Render menu items and compute width for info panel.
-        menu_width = _render_menu(stdscr, menu, start_row, menu_start_x)
+        layout, menu_width = _build_menu_layout(menu, start_row)
+        for orig_idx, text, y in layout:
+            _draw_menu_item(window, orig_idx, text, y, menu, menu_start_x)
 
-        # Determine panel x position and draw or clear info panel.
+        # Info panel is drawn to the right.
         panel_x = menu_start_x + menu_width + 1
         current = menu.items[menu.position]
         if current.label not in {"Secure Computer!", "Abort", "<- Back"}:
-            _draw_info_panel(stdscr, current.label, panel_x)
+            draw_info_panel(stdscr, current.label, panel_x)
         else:
-            _clear_info_panel(stdscr, panel_x)
+            clear_info_panel(stdscr, panel_x)
 
-        win.refresh()
-        key = win.getch()
+        window.refresh()
+        key = window.getch()
 
-        if key in (ord("q"), 27):
-            if menu.parent:
-                return None
-            sys.exit(0)
+        if key in (ord('q'), 27):
+            if menu.parent is not None:
+                return ""
+            else:
+                sys.exit(0)
         elif key == curses.KEY_UP:
             menu.navigate(-1)
         elif key == curses.KEY_DOWN:
             menu.navigate(1)
-        elif key in (9, curses.KEY_ENTER, ord("\n")):
+        elif key in (9, curses.KEY_ENTER, ord('\n')):
             current = menu.items[menu.position]
             if current.item_type == "back":
-                return None
-            elif current.submenu:
-                run_menu(current.submenu, stdscr)
-            elif current.action:
+                return ""
+            elif current.submenu is not None:
+                result = run_menu(current.submenu, stdscr)
+                if result:
+                    return result
+            elif current.action is not None:
                 return current.label
             else:
+                # Toggle checkable items.
                 if current.item_type == "radio":
-                    # Toggle radio; if checking, uncheck siblings.
-                    new_state = not current.checked
-                    current.checked = new_state
-                    if new_state:
+                    current.checked = not current.checked
+                    if current.checked:
                         for item in menu.items:
                             if item is not current and item.item_type == "radio":
                                 item.checked = False
                 elif current.item_type == "checkbox":
                     current.checked = not current.checked
 
-
-if __name__ == "__main__":
-    # For quick testing, run this module directly.
-    curses.wrapper(lambda stdscr: run_menu(build_menu_structure(), stdscr))
+    return ""
