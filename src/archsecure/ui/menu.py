@@ -167,9 +167,9 @@ def _draw_menu_item(window: curses.window, item_index: int, text: str, y: int, m
     :param menu_start_x: The x-coordinate where the menu text begins.
     """
     if item_index == menu.position:
-        mode = curses.color_pair(2)
+        mode = curses.color_pair(5)
         try:
-            # Draw the bold green marker (with its own color pair and A_BOLD attribute)
+            # Draw the bold green marker (using color pair 3 and A_BOLD)
             window.addstr(y, menu_start_x - 2, "> ", curses.color_pair(3) | curses.A_BOLD)
         except curses.error:
             pass
@@ -188,10 +188,11 @@ def build_menu_structure() -> Menu:
     """
     Construct and return the full nested menu structure.
     """
-    # Harden Firewall submenu (radio buttons)
+    # Harden Firewall submenu (radio buttons) – now with iptables added.
     firewall_menu = Menu([
         MenuItem("Use UFW", item_type="radio"),
         MenuItem("Use NFtables", item_type="radio"),
+        MenuItem("Use iptables", item_type="radio"),
     ], parent=True)
 
     # Harden Kernel submenu (checkboxes)
@@ -254,10 +255,10 @@ def run_menu(menu: Menu, stdscr: curses.window) -> str:
     window.keypad(True)
     curses.curs_set(0)
 
-    # New header text per requirements.
+    # Header text per requirements.
     header_text = "Up/Down: Navigate  Tab/Enter: Select/Toggle"
     start_row = 3
-    menu_start_x = 2
+    menu_start_x = 2  # Updated left margin
 
     while True:
         window.clear()
