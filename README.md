@@ -4,7 +4,7 @@ WARNING: This project is currently a work in progress and subject to significant
 
 This is a Python program that uses curses to provide a menu for selectively hardening an Arch Linux setup with settings based on [Madaians](https://madaidans-insecurities.github.io/guides/linux-hardening.html) and [theprivacyguide1](https://madaidans-insecurities.github.io/guides/linux-hardening.html).
 
-[![asciicast](https://asciinema.org/a/0Fky2HE6jjSyDrP2qRoINSGC2.svg)](https://asciinema.org/a/0Fky2HE6jjSyDrP2qRoINSGC2)
+[![asciicast](demo.svg)](https://asciinema.org/a/0Fky2HE6jjSyDrP2qRoINSGC2)
 
 A list of what it can do
 
