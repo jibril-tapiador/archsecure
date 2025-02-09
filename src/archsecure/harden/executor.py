@@ -6,14 +6,15 @@ from archsecure.ui.menu import MenuItem
 def execute_hardening(main_menu, stdscr: curses.window) -> None:
     """
     Execute hardening based on the main menu selections.
-    If no main menu items (excluding actions) are checked, nothing happens.
+    If no main menu items (excluding actions/back) are checked, nothing happens.
     Otherwise, clear the screen and run the hardening process.
 
     :param main_menu: The main menu object.
     :param stdscr: The curses standard screen.
     """
     progress_items = [item for item in main_menu.items if item.item_type not in ("action", "back")]
-    if not any(item.checked for item in progress_items):
+    # Use effective_checked() to detect if any submenu item has been checked.
+    if not any(item.effective_checked() for item in progress_items):
         return
 
     run_hardening_process(progress_items, stdscr)
@@ -30,15 +31,19 @@ def run_hardening_process(progress_items, stdscr: curses.window) -> None:
     statuses = {item.label: "" for item in progress_items}
 
     for i, item in enumerate(progress_items):
-        if not item.checked:
+        # If this main menu item was not selected, mark it as skipped.
+        if not item.effective_checked():
             statuses[item.label] = "skipped"
             refresh_progress(stdscr, progress_items, statuses)
             time.sleep(0.5)
             continue
 
+        # Set initial spinner state.
         statuses[item.label] = spinner_chars[0]
+        # For subsequent items that are checked, set spinner; otherwise, "skipped".
         for j in range(i+1, len(progress_items)):
-            statuses[progress_items[j].label] = spinner_chars[0] if progress_items[j].checked else "skipped"
+            statuses[progress_items[j].label] = (spinner_chars[0]
+                if progress_items[j].effective_checked() else "skipped")
 
         result = process_item_with_spinner(item, stdscr, progress_items, statuses, spinner_chars)
         statuses[item.label] = "✔" if result else "error!"
@@ -77,6 +82,7 @@ def process_item_with_spinner(item, stdscr, progress_items, statuses, spinner_ch
 
     if item.label == "Harden Firewall":
         selected_option = None
+        # In the submenu, check for a radio button that is selected.
         if item.submenu:
             for sub_item in item.submenu.items:
                 if sub_item.item_type == "radio" and sub_item.checked:
@@ -87,7 +93,7 @@ def process_item_with_spinner(item, stdscr, progress_items, statuses, spinner_ch
         else:
             return firewall.harden_firewall(selected_option)
     else:
-        # For unimplemented items, simulate success.
+        # For items not yet implemented, simulate success.
         return True
 
 def refresh_progress(stdscr: curses.window, progress_items, statuses) -> None:
