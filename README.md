@@ -2,7 +2,8 @@
 
 A Python program that uses curses to display a menu for selectively hardening Arch Linux with settings inspired by [Madaians](https://madaidans-insecurities.github.io/guides/linux-hardening.html) and [theprivacyguide1](https://madaidans-insecurities.github.io/guides/linux-hardening.html).
 
-[![asciicast](demo.svg)](https://asciinema.org/a/0Fky2HE6jjSyDrP2qRoINSGC2)
+![arch secure demo](demo.svg)
+
 
 ## A list of what it can do
 
