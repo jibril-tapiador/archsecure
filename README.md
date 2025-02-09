@@ -1,12 +1,10 @@
 # Arch Secure
 
-WARNING: This project is currently a work in progress and subject to significant changes.
-
-This is a Python program that uses curses to provide a menu for selectively hardening an Arch Linux setup with settings based on [Madaians](https://madaidans-insecurities.github.io/guides/linux-hardening.html) and [theprivacyguide1](https://madaidans-insecurities.github.io/guides/linux-hardening.html).
+A Python program that uses curses to display a menu for selectively hardening Arch Linux with settings inspired by [Madaians](https://madaidans-insecurities.github.io/guides/linux-hardening.html) and [theprivacyguide1](https://madaidans-insecurities.github.io/guides/linux-hardening.html).
 
 [![asciicast](demo.svg)](https://asciinema.org/a/0Fky2HE6jjSyDrP2qRoINSGC2)
 
-A list of what it can do
+## A list of what it can do
 
 * Kernel hardening via sysctl and boot parameters
 * Disables IPv6 to reduce attack surface
@@ -34,6 +32,11 @@ A list of what it can do
 All of these are completely optional and you will be able to select if you want them or not.
 
 This script only works on Arch Linux or Manjaro with GRUB or Syslinux as the bootloader and systemd as the init system.
+
+## Warning
+
+This project is currently a work in progress and subject to significant changes.
+
 
 ## How to use it:
 
