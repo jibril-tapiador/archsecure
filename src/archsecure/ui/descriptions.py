@@ -1,53 +1,105 @@
+# src/arch_hardener/ui/descriptions.py
+
 descriptions = {
     # Main menu descriptions:
-    "Harden Firewall": "Blocks all incoming connections.",
-    "Harden Kernel": "Hardens the linux kernel and reduces the attack surface.",
+    "Harden Firewall": (
+        "Configures the system's firewall to block all incoming connections. "
+        "Select a preferred firewall solution from the submenu to secure your network."
+    ),
+    "Harden Kernel": (
+        "Adjusts kernel parameters to reduce the system's attack surface by enabling self-protection features "
+        "and applying hardening measures against exploits."
+    ),
     "Install & Enable Apparmor": (
-        "AppArmor is a Linux security module implementing Mandatory Access Control (MAC), "
-        "which enforces administrator-defined policies to restrict application access to files, directories, "
-        "and network resources."
+        "Installs and enables AppArmor to restrict application behavior via mandatory access control, "
+        "using common profiles to limit access."
     ),
     "Install & Configure VPN": (
-        "A VPN encrypts your data, eliminating any opportunity for others on the same network to intercept your traffic."
+        "Encrypts traffic and hides your IP address by installing and configuring a VPN solution, "
+        "thus protecting online communications."
     ),
     "Harden Xorg": (
-        "Xorg is an old, bloated implementation of the X Window System with known vulnerabilities. "
-        "Limiting its privileges can reduce the impact of potential exploits."
+        "Reduces vulnerabilities in graphical systems by applying hardening measures to Xorg, "
+        "limiting the risk of exploits."
     ),
     "Disable TCP and ICMP Timestamps": (
-        "Disable timestamps to prevent clock skew fingerprinting attacks."
+        "Prevents time-based fingerprinting attacks by disabling TCP and ICMP timestamps, "
+        "thereby reducing system time leakage."
     ),
     "Disable NTP Client": (
-        "NTP is insecure and can leak system time. Disable it and consider using the hardware clock instead."
+        "Disables the NTP client to avoid system time leaks and potential security risks, "
+        "favoring more secure time synchronization methods."
     ),
     "Securely Randomize Mac Address on boot": (
-        "Randomize the MAC address on each boot to enhance privacy."
+        "Ensures a new MAC address is generated at each boot to improve privacy on public networks "
+        "and reduce tracking risks."
     ),
 
-    # Submenu items for Harden Firewall:
-    "Use UFW": "lorem ipsum",
-    "Use NFtables": "lorem ipsum",
+    # Submenu descriptions for Harden Firewall:
+    "Use UFW": (
+        "UFW is a firewall management tool that provides a simple interface for controlling iptables rules."
+    ),
+    "Use NFtables": (
+        "NFtables serves as a modern replacement for iptables, offering a streamlined firewall solution for Linux systems."
+    ),
+    "Use iptables": (
+        "iptables blocks incoming connections and provides detailed control over firewall rules."
+    ),
 
-    # Submenu items for Harden Kernel:
-    "Kernel Self-Protection": "lorem ipsum",
-    "Harden Network Stack": "lorem ipsum",
-    "Apply CPU mitigations": "lorem ipsum",
-    "Disable redundant Kernel components": "lorem ipsum",
+    # Submenu descriptions for Harden Kernel:
+    "Kernel Self-Protection": (
+        "Enables kernel self-protection features that reduce exploitation risks and enhance resistance to attacks."
+    ),
+    "Harden Network Stack": (
+        "Configures network parameters to protect against common network-based attacks, tightening security at the kernel level."
+    ),
+    "Apply CPU mitigations": (
+        "Applies CPU-level mitigations to defend against hardware vulnerabilities and protect the system from exploits."
+    ),
+    "Disable redundant Kernel components": (
+        "Disables unnecessary kernel components to reduce potential attack vectors, streamlining the system and minimizing exposure."
+    ),
 
-    # Submenu items for Install & Enable Apparmor:
-    "Auto boot in Grub": "lorem ipsum",
-    "Include Common Profiles": "lorem ipsum",
-    "Include Whonix Profiles (For those under constant attack)": "lorem ipsum",
+    # Submenu descriptions for Install & Enable Apparmor:
+    "Auto boot in Grub": (
+        "Adds required parameters to Grub to ensure AppArmor is enabled at boot and starts automatically."
+    ),
+    "Include Common Profiles": (
+        "Installs common AppArmor profiles to secure popular applications and provide baseline system protection."
+    ),
+    "Include Whonix Profiles (For those under constant attack)": (
+        "Installs Whonix profiles for environments under constant attack, further restricting application access."
+    ),
 
-    # Submenu items for Install & Configure VPN:
-    "Install Openvpn": "lorem ipsum",
-    "Deploy VPN Kill Switch": "lorem ipsum",
-    "Download OVPN files": "lorem ipsum",
-    "Download NordVPN OVPN files": "lorem ipsum",
-    "Download ExpressVPN OVPN files": "lorem ipsum",
-    "Download ProtonVPN OVPN files": "lorem ipsum",
-    "Auto Configure DNS": "lorem ipsum",
-    "NordVPN": "lorem ipsum",
-    "ExpressVPN": "lorem ipsum",
-    "ProtonVPN": "lorem ipsum"
+    # Submenu descriptions for Install & Configure VPN:
+    "Install Openvpn": (
+        "Installs OpenVPN, a widely used open-source VPN solution that provides core functionality for secure connections."
+    ),
+    "Deploy VPN Kill Switch": (
+        "Configures a VPN kill switch to halt all traffic if the VPN disconnects unexpectedly, preventing data leaks."
+    ),
+    "Download OVPN files": (
+        "Downloads OpenVPN configuration files from your VPN provider; select the appropriate configuration in the submenu."
+    ),
+    "Download NordVPN OVPN files": (
+        "Downloads OpenVPN configuration files for NordVPN, preparing the necessary settings."
+    ),
+    "Download ExpressVPN OVPN files": (
+        "Downloads OpenVPN configuration files for ExpressVPN, providing the required configuration."
+    ),
+    "Download ProtonVPN OVPN files": (
+        "Downloads OpenVPN configuration files for ProtonVPN, setting up the required configuration."
+    ),
+    "Auto Configure DNS": (
+        "Automatically configures DNS settings for secure routing of queries when connected to the VPN."
+    ),
+    "NordVPN": (
+        "Selects NordVPN settings for DNS configuration."
+    ),
+    "ExpressVPN": (
+        "Selects ExpressVPN settings for DNS configuration."
+    ),
+    "ProtonVPN": (
+        "Selects ProtonVPN settings for DNS configuration."
+    )
 }
