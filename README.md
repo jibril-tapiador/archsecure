@@ -9,7 +9,7 @@ Too often, cybersecurity gets neglected because most users do not know how to pr
 ![arch secure demo](demo.svg)
 
 
-## A list of what it can do
+## To do
 
 * Kernel hardening via sysctl and boot parameters
 * Disables IPv6 to reduce attack surface
@@ -33,10 +33,6 @@ Too often, cybersecurity gets neglected because most users do not know how to pr
 * Blacklists uncommon filesystems
 * Installs haveged and jitterentropy to gather more entropy
 * Blacklists the webcam, microphone and speaker kernel modules to prevent them from being used to spy on you
-
-All of these are completely optional and you will be able to select if you want them or not.
-
-This script only works on Arch Linux or Manjaro with GRUB or Syslinux as the bootloader and systemd as the init system.
 
 ## Warning
 
