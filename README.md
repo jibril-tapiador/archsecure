@@ -36,10 +36,7 @@ Too often, cybersecurity gets neglected because most users do not know how to pr
 
 ## Warning
 
-This project is currently a work in progress.
-
-Many parts still do not work as intended and are subject to significant changes.
-
+This project is currently a work in progress and is subject to significant changes.
 
 ## How to use it
 
