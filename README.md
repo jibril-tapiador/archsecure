@@ -2,10 +2,6 @@
 
 **Arch Secure** is a guided hardening tool for [Arch Linux](https://wiki.archlinux.org/index.php/Arch_Linux) with settings based from [Madaians](https://madaidans-insecurities.github.io/guides/linux-hardening.html) and [theprivacyguide1](https://madaidans-insecurities.github.io/guides/linux-hardening.html).
 
-Too often, cybersecurity gets neglected because most users do not know how to properly secure their systems or are not technical enough to implement them. Many hardening tools lack the flexibility to let users selectively secure only the components they need, often forcing an all-or-nothing approach.
-
-**Arch Secure** solves this problem with the aim of bring cybersecurity to the masses in an easy-to-use fashion.
-
 ![arch secure demo](demo.svg)
 
 
